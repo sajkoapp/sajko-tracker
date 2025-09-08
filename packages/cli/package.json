@@ -1,6 +1,6 @@
 {
   "name": "@sajko/cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI tool for SAJKO Analytics - Initialize, test, and debug your integration",
   "keywords": [
     "sajko",
@@ -12,7 +12,6 @@
   ],
   "author": "SAJKO Team",
   "license": "MIT",
-  "main": "./dist/index.js",
   "bin": {
     "sajko": "./dist/cli.js"
   },
