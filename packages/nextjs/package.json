@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean --external react --external next",
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean --external react --external next --external @sajko/react",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch --external react --external next",
     "test": "vitest",
     "clean": "rm -rf dist node_modules",
@@ -40,11 +40,13 @@
   "sideEffects": false,
   "peerDependencies": {
     "@sajko/tracker": "^1.0.0",
+    "@sajko/react": "^1.0.0",
     "next": ">=12.0.0",
     "react": ">=16.8.0"
   },
   "devDependencies": {
     "@sajko/tracker": "file:../core",
+    "@sajko/react": "file:../react",
     "@types/react": "^18.0.0",
     "@types/node": "^20.0.0",
     "next": "^14.0.0",
