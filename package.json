@@ -1,6 +1,6 @@
 {
   "name": "@sajko/tracker-monorepo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Advanced session replay and analytics for modern web apps",
   "workspaces": [

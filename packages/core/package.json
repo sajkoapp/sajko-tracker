@@ -1,6 +1,6 @@
 {
   "name": "@sajko/tracker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Core tracking library for SAJKO analytics and session replay",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

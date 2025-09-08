@@ -1,6 +1,6 @@
 {
   "name": "@sajko/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tool for SAJKO Analytics - Initialize, test, and debug your integration",
   "keywords": [
     "sajko",
@@ -30,7 +30,7 @@
     "@babel/parser": "^7.23.6",
     "@babel/traverse": "^7.23.6",
     "@babel/types": "^7.23.6",
-    "@sajko/tracker": "file:../core",
+    "@sajko/tracker": "^1.0.0",
     "axios": "^1.6.2",
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
