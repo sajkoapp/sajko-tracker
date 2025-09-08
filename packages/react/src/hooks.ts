@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { init, SajkoConfig, SajkoReplay, SajkoMetrics, LoaderOptions } from '@sajko/tracker';
 

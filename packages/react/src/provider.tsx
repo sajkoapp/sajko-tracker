@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useSajko, UseSajkoState } from './hooks';
 import { SajkoConfig, LoaderOptions } from '@sajko/tracker';

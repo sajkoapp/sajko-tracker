@@ -1,6 +1,6 @@
 {
   "name": "@sajko/tracker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Core tracking library for SAJKO analytics and session replay",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -30,7 +30,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sajkoapp/sajko-tracker.git",
+    "url": "git+https://github.com/sajkoapp/sajko-tracker.git",
     "directory": "packages/core"
   },
   "files": [

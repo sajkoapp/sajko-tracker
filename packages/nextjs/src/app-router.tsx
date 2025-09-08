@@ -1,5 +1,6 @@
+'use client';
+
 import React from 'react';
-import { headers } from 'next/headers';
 import { SajkoScript } from './script';
 import { SajkoConfig } from '@sajko/tracker';
 
@@ -18,9 +19,9 @@ export interface SajkoTrackerProps {
 }
 
 /**
- * Server Component for App Router
+ * Client Component for App Router
  * 
- * Automatically configures SAJKO based on environment and headers
+ * Configures SAJKO tracking in Next.js apps
  * 
  * @example
  * ```tsx
@@ -39,26 +40,18 @@ export interface SajkoTrackerProps {
  * }
  * ```
  */
-export async function SajkoTracker({
+export function SajkoTracker({
   websiteId,
   apiEndpoint,
   debug,
   config
 }: SajkoTrackerProps) {
-  // Server-side: detect user agent and other info
-  const headersList = headers();
-  const userAgent = headersList.get('user-agent');
-  
-  // Check for cookie consent (example implementation)
-  const cookieHeader = headersList.get('cookie');
-  const hasConsent = cookieHeader?.includes('consent=true') ?? true;
-  
   // Build configuration
   const sajkoConfig: SajkoConfig = {
     websiteId,
-    apiEndpoint: apiEndpoint || process.env.NEXT_PUBLIC_SAJKO_API || 'https://app.sajko.sk',
-    hasUserConsent: hasConsent,
-    debug: debug ?? process.env.NODE_ENV === 'development',
+    apiEndpoint: apiEndpoint || 'https://app.sajko.sk',
+    hasUserConsent: true,
+    debug: debug ?? false,
     ...config
   };
   
