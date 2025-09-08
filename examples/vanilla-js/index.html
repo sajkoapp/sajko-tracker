@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAJKO Tracker - Vanilla JS Example</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 2.5rem;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+    
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      font-weight: 500;
+    }
+    
+    .status.loading {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+    
+    .status.active {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .metric-card {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .metric-label {
+      font-size: 0.875rem;
+      color: #6c757d;
+      margin-bottom: 5px;
+    }
+    
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    
+    button {
+      padding: 12px 24px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    button:hover {
+      background: #5a67d8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .form-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #495057;
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .event-log {
+      max-height: 300px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    
+    .event-item {
+      padding: 8px;
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.875rem;
+    }
+    
+    .event-time {
+      color: #6c757d;
+      margin-right: 10px;
+    }
+    
+    .event-name {
+      color: #667eea;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 SAJKO Tracker Demo</h1>
+    <p class="subtitle">Vanilla JavaScript Implementation</p>
+    
+    <div id="status" class="status loading">
+      Initializing SAJKO Tracker...
+    </div>
+    
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Session ID</div>
+        <div class="metric-value" id="sessionId">-</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Recording Status</div>
+        <div class="metric-value" id="recordingStatus">-</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Queue Size</div>
+        <div class="metric-value" id="queueSize">-</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">WASM Status</div>
+        <div class="metric-value" id="wasmStatus">-</div>
+      </div>
+    </div>
+    
+    <div class="form-section">
+      <h3>Track Custom Event</h3>
+      <div class="form-group">
+        <label for="eventName">Event Name</label>
+        <input type="text" id="eventName" placeholder="e.g., button_click" value="button_click">
+      </div>
+      <div class="form-group">
+        <label for="eventProps">Properties (JSON)</label>
+        <input type="text" id="eventProps" placeholder='{"button": "cta"}' value='{"button": "cta", "page": "demo"}'>
+      </div>
+      <button onclick="trackCustomEvent()">Track Event</button>
+    </div>
+    
+    <div class="form-section">
+      <h3>Identify User</h3>
+      <div class="form-group">
+        <label for="userId">User ID</label>
+        <input type="text" id="userId" placeholder="user-123" value="user-123">
+      </div>
+      <div class="form-group">
+        <label for="userTraits">Traits (JSON)</label>
+        <input type="text" id="userTraits" placeholder='{"email": "user@example.com"}' value='{"email": "demo@sajko.sk", "plan": "premium"}'>
+      </div>
+      <button onclick="identifyUser()">Identify User</button>
+    </div>
+    
+    <div class="actions">
+      <button onclick="testButtonClick()">Test Button Click</button>
+      <button onclick="testPageView()">Track Page View</button>
+      <button onclick="testFormSubmit()">Simulate Form Submit</button>
+      <button onclick="flushEvents()">Flush Events</button>
+      <button onclick="stopRecording()">Stop Recording</button>
+      <button onclick="refreshMetrics()">Refresh Metrics</button>
+    </div>
+    
+    <h3>Event Log</h3>
+    <div class="event-log" id="eventLog">
+      <div class="event-item">
+        <span class="event-time">Waiting for events...</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SAJKO Tracker Script -->
+  <script>
+    // Configure SAJKO
+    window.sajkoConfig = {
+      websiteId: 'demo-website-001',
+      apiEndpoint: 'http://localhost:3001',
+      hasUserConsent: true,
+      debug: true
+    };
+  </script>
+  
+  <!-- Load SAJKO Script -->
+  <script src="../../cdn/v4/sajko-replay.js" async></script>
+  
+  <!-- Demo Application Script -->
+  <script>
+    let eventCount = 0;
+    
+    // Wait for SAJKO to be ready
+    function waitForSajko(callback) {
+      if (window.SajkoReplay) {
+        callback();
+      } else {
+        setTimeout(() => waitForSajko(callback), 100);
+      }
+    }
+    
+    // Initialize when ready
+    waitForSajko(() => {
+      console.log('SAJKO Ready!', window.SajkoReplay);
+      updateStatus('active', '✅ SAJKO Tracker Active');
+      refreshMetrics();
+      
+      // Set up auto-refresh
+      setInterval(refreshMetrics, 5000);
+    });
+    
+    // Update status display
+    function updateStatus(className, text) {
+      const status = document.getElementById('status');
+      status.className = 'status ' + className;
+      status.textContent = text;
+    }
+    
+    // Refresh metrics display
+    function refreshMetrics() {
+      if (!window.SajkoReplay) return;
+      
+      const metrics = window.SajkoReplay.getMetrics();
+      
+      document.getElementById('sessionId').textContent = 
+        window.SajkoReplay.sessionId || '-';
+      document.getElementById('recordingStatus').textContent = 
+        window.SajkoReplay.isRecording ? '🔴 Recording' : '⭕ Stopped';
+      document.getElementById('queueSize').textContent = 
+        metrics?.queueSize || '0';
+      document.getElementById('wasmStatus').textContent = 
+        metrics?.hasWasm ? '✅ Enabled' : '❌ Disabled';
+    }
+    
+    // Log event to display
+    function logEvent(name, properties) {
+      const log = document.getElementById('eventLog');
+      const time = new Date().toLocaleTimeString();
+      const item = document.createElement('div');
+      item.className = 'event-item';
+      item.innerHTML = `
+        <span class="event-time">${time}</span>
+        <span class="event-name">${name}</span>
+        ${properties ? ` - ${JSON.stringify(properties)}` : ''}
+      `;
+      
+      // Add to top of log
+      if (log.firstChild) {
+        log.insertBefore(item, log.firstChild);
+      } else {
+        log.appendChild(item);
+      }
+      
+      // Keep only last 20 events
+      while (log.children.length > 20) {
+        log.removeChild(log.lastChild);
+      }
+    }
+    
+    // Track custom event
+    function trackCustomEvent() {
+      const name = document.getElementById('eventName').value;
+      const propsStr = document.getElementById('eventProps').value;
+      
+      try {
+        const props = propsStr ? JSON.parse(propsStr) : undefined;
+        
+        if (window.SajkoReplay?.trackEvent) {
+          window.SajkoReplay.trackEvent(name, props);
+          logEvent(name, props);
+        }
+      } catch (error) {
+        alert('Invalid JSON properties: ' + error.message);
+      }
+    }
+    
+    // Identify user
+    function identifyUser() {
+      const userId = document.getElementById('userId').value;
+      const traitsStr = document.getElementById('userTraits').value;
+      
+      try {
+        const traits = traitsStr ? JSON.parse(traitsStr) : undefined;
+        
+        if (window.SajkoReplay?.identify) {
+          window.SajkoReplay.identify(userId, traits);
+          logEvent('identify', { userId, ...traits });
+        }
+      } catch (error) {
+        alert('Invalid JSON traits: ' + error.message);
+      }
+    }
+    
+    // Test functions
+    function testButtonClick() {
+      if (window.SajkoReplay?.trackEvent) {
+        window.SajkoReplay.trackEvent('button_click', {
+          button: 'test',
+          timestamp: Date.now()
+        });
+        logEvent('button_click', { button: 'test' });
+      }
+    }
+    
+    function testPageView() {
+      if (window.SajkoReplay?.trackEvent) {
+        window.SajkoReplay.trackEvent('page_view', {
+          page: '/demo',
+          title: document.title,
+          url: window.location.href
+        });
+        logEvent('page_view', { page: '/demo' });
+      }
+    }
+    
+    function testFormSubmit() {
+      if (window.SajkoReplay?.trackEvent) {
+        window.SajkoReplay.trackEvent('form_submit', {
+          formId: 'demo-form',
+          fields: ['email', 'message']
+        });
+        logEvent('form_submit', { formId: 'demo-form' });
+      }
+    }
+    
+    function flushEvents() {
+      if (window.SajkoReplay?.flush) {
+        window.SajkoReplay.flush();
+        logEvent('flush', { manual: true });
+        setTimeout(refreshMetrics, 500);
+      }
+    }
+    
+    function stopRecording() {
+      if (window.SajkoReplay?.stop) {
+        window.SajkoReplay.stop();
+        updateStatus('error', '⏹️ Recording Stopped');
+        logEvent('stop', null);
+        refreshMetrics();
+      }
+    }
+    
+    // Track some automatic events
+    document.addEventListener('DOMContentLoaded', () => {
+      logEvent('dom_ready', null);
+    });
+    
+    window.addEventListener('load', () => {
+      logEvent('page_load', { loadTime: performance.timing.loadEventEnd - performance.timing.navigationStart });
+    });
+  </script>
+</body>
+</html>

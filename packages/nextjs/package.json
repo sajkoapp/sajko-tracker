@@ -1,0 +1,56 @@
+{
+  "name": "@sajko/nextjs",
+  "version": "1.0.0",
+  "description": "Next.js integration for SAJKO analytics",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean --external react --external next",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch --external react --external next",
+    "test": "vitest",
+    "clean": "rm -rf dist node_modules",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "nextjs",
+    "next",
+    "analytics",
+    "session-replay",
+    "sajko"
+  ],
+  "author": "SAJKO Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sajko-analytics/sajko-tracker",
+    "directory": "packages/nextjs"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "peerDependencies": {
+    "@sajko/tracker": "^1.0.0",
+    "next": ">=12.0.0",
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@sajko/tracker": "file:../core",
+    "@types/react": "^18.0.0",
+    "@types/node": "^20.0.0",
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

@@ -1,0 +1,141 @@
+name: CDN Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cdn/**'
+      - 'packages/core/src/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to CDN
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build CDN assets
+        run: |
+          npm run build
+          # Minify and optimize CDN files
+          npx terser cdn/v4/sajko-replay.js -o cdn/v4/sajko-replay.min.js -c -m
+          npx terser cdn/v4/wasm-bridge.js -o cdn/v4/wasm-bridge.min.js -c -m
+          npx terser cdn/v4/wasm_exec.js -o cdn/v4/wasm_exec.min.js -c -m
+      
+      - name: Generate integrity hashes
+        run: |
+          for file in cdn/v4/*.js; do
+            if [[ ! "$file" == *.min.js ]]; then
+              openssl dgst -sha384 -binary "$file" | openssl base64 -A > "$file.sri"
+            fi
+          done
+      
+      - name: Deploy to Cloudflare R2
+        if: env.CF_ACCOUNT_ID != ''
+        run: |
+          # Install Wrangler
+          npm install -g wrangler
+          
+          # Upload files to R2
+          wrangler r2 object put sajko-cdn/v4/sajko-replay.js --file=cdn/v4/sajko-replay.js
+          wrangler r2 object put sajko-cdn/v4/sajko-replay.min.js --file=cdn/v4/sajko-replay.min.js
+          wrangler r2 object put sajko-cdn/v4/wasm-bridge.js --file=cdn/v4/wasm-bridge.js
+          wrangler r2 object put sajko-cdn/v4/wasm-bridge.min.js --file=cdn/v4/wasm-bridge.min.js
+          wrangler r2 object put sajko-cdn/v4/wasm_exec.js --file=cdn/v4/wasm_exec.js
+          wrangler r2 object put sajko-cdn/v4/wasm_exec.min.js --file=cdn/v4/wasm_exec.min.js
+          
+          # Upload SRI hashes
+          for file in cdn/v4/*.sri; do
+            filename=$(basename "$file")
+            wrangler r2 object put sajko-cdn/v4/"$filename" --file="$file"
+          done
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      
+      - name: Deploy to AWS S3
+        if: env.AWS_S3_BUCKET != ''
+        run: |
+          # Install AWS CLI
+          pip install awscli
+          
+          # Sync files to S3
+          aws s3 sync cdn/v4 s3://${{ secrets.AWS_S3_BUCKET }}/v4 \
+            --acl public-read \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
+          
+          # Set correct content types
+          aws s3 cp s3://${{ secrets.AWS_S3_BUCKET }}/v4 s3://${{ secrets.AWS_S3_BUCKET }}/v4 \
+            --recursive \
+            --exclude "*" \
+            --include "*.js" \
+            --content-type "application/javascript" \
+            --metadata-directive REPLACE
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      
+      - name: Invalidate CloudFront
+        if: env.CF_DISTRIBUTION_ID != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CF_DISTRIBUTION_ID }} \
+            --paths "/v4/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          CF_DISTRIBUTION_ID: ${{ secrets.CF_DISTRIBUTION_ID }}
+      
+      - name: Update CDN manifest
+        run: |
+          cat > cdn/v4/manifest.json << EOF
+          {
+            "version": "4.0.0",
+            "updated": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "files": {
+              "sajko-replay.js": {
+                "size": $(stat -f%z cdn/v4/sajko-replay.js 2>/dev/null || stat -c%s cdn/v4/sajko-replay.js),
+                "sri": "$(cat cdn/v4/sajko-replay.js.sri)",
+                "min": "sajko-replay.min.js"
+              },
+              "wasm-bridge.js": {
+                "size": $(stat -f%z cdn/v4/wasm-bridge.js 2>/dev/null || stat -c%s cdn/v4/wasm-bridge.js),
+                "sri": "$(cat cdn/v4/wasm-bridge.js.sri)",
+                "min": "wasm-bridge.min.js"
+              },
+              "wasm_exec.js": {
+                "size": $(stat -f%z cdn/v4/wasm_exec.js 2>/dev/null || stat -c%s cdn/v4/wasm_exec.js),
+                "sri": "$(cat cdn/v4/wasm_exec.js.sri)",
+                "min": "wasm_exec.min.js"
+              }
+            }
+          }
+          EOF
+      
+      - name: Test CDN endpoints
+        run: |
+          # Test Cloudflare CDN
+          curl -I https://cdn.sajko.app/v4/sajko-replay.js
+          
+          # Test AWS CloudFront
+          # curl -I https://d1234567890.cloudfront.net/v4/sajko-replay.js
+      
+      - name: Notify deployment
+        run: |
+          echo "CDN deployment completed successfully!"
+          echo "Version: 4.0.0"
+          echo "Files deployed:"
+          ls -la cdn/v4/*.js

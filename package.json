@@ -1,0 +1,45 @@
+{
+  "name": "@sajko/tracker-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Advanced session replay and analytics for modern web apps",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "build:core": "npm run build -w @sajko/tracker",
+    "build:react": "npm run build -w @sajko/react",
+    "build:nextjs": "npm run build -w @sajko/nextjs",
+    "build:vue": "npm run build -w @sajko/vue",
+    "build:cli": "npm run build -w @sajko/cli",
+    "install:all": "npm install --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+    "publish:all": "npm publish --workspaces --access public",
+    "dev": "npm run dev --workspaces --if-present",
+    "setup": "npm install && npm run build"
+  },
+  "keywords": [
+    "analytics",
+    "session-replay",
+    "tracking",
+    "sajko",
+    "monitoring",
+    "user-behavior"
+  ],
+  "author": "SAJKO Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sajko-analytics/sajko-tracker"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "tsup": "^8.0.0",
+    "vitest": "^1.0.0"
+  }
+}
