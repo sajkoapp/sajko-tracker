@@ -58,7 +58,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sajko-ai/sajko-tracker.git",
+    "url": "https://github.com/sajkoapp/sajko-tracker.git",
     "directory": "packages/cli"
   }
 }

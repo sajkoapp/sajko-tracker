@@ -34,7 +34,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sajko-analytics/sajko-tracker"
+    "url": "https://github.com/sajkoapp/sajko-tracker.git"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
