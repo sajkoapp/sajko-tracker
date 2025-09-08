@@ -258,14 +258,8 @@ async function installPackage(
         };
       }
     } else {
-      // Check if package exists on NPM first
-      try {
-        execSync(`npm view ${packageName} version`, { stdio: 'pipe' });
-      } catch {
-        return { success: false, isNotFound: true };
-      }
-      
-      // Install from NPM
+      // Try to install from NPM directly
+      // The npm view check is removed because it can fail due to propagation delays
       const commands: Record<string, string> = {
         npm: `npm install ${packageName}`,
         yarn: `yarn add ${packageName}`,
@@ -273,9 +267,27 @@ async function installPackage(
         bun: `bun add ${packageName}`
       };
       
-      execSync(commands[pm], { stdio: 'pipe' });
-      console.log(chalk.green(`\n✅ Installed ${packageName} from NPM`));
-      return { success: true };
+      try {
+        execSync(commands[pm], { stdio: 'pipe' });
+        console.log(chalk.green(`\n✅ Installed ${packageName} from NPM`));
+        return { success: true };
+      } catch (installError: any) {
+        // Check if the error is because package doesn't exist
+        const errorMsg = installError.message || installError.toString();
+        const isNotFound = errorMsg.includes('404') || 
+                          errorMsg.includes('Not found') ||
+                          errorMsg.includes('E404');
+        
+        if (isNotFound) {
+          return { success: false, isNotFound: true };
+        }
+        
+        // For other errors, just return the error
+        return { 
+          success: false, 
+          error: errorMsg
+        };
+      }
     }
   } catch (error: any) {
     return { 
