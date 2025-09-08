@@ -6,13 +6,14 @@ import { init } from './commands/init';
 import { test } from './commands/test';
 import { debug } from './commands/debug';
 import { doctor } from './commands/doctor';
+import { verify } from './commands/verify';
 
 const program = new Command();
 
 program
   .name('sajko')
   .description('CLI tool for SAJKO Analytics')
-  .version('1.0.0');
+  .version('1.0.5');
 
 program
   .command('init')
@@ -30,6 +31,13 @@ program
   .option('-e, --endpoint <url>', 'API endpoint to test')
   .option('--send-event', 'Send a test event')
   .action(test);
+
+program
+  .command('verify')
+  .description('Verify your SAJKO installation and configuration')
+  .option('-w, --website-id <id>', 'Website ID to verify')
+  .option('-e, --endpoint <url>', 'API endpoint')
+  .action(verify);
 
 program
   .command('debug')
