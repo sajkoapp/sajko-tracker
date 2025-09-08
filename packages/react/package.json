@@ -1,6 +1,6 @@
 {
   "name": "@sajko/react",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "React hooks and components for SAJKO analytics",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean --external react",
+    "build": "tsup",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch --external react",
     "test": "vitest",
     "clean": "rm -rf dist node_modules",

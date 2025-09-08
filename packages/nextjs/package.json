@@ -1,6 +1,6 @@
 {
   "name": "@sajko/nextjs",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Next.js integration for SAJKO analytics",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean --external react --external next --external @sajko/react",
+    "build": "tsup",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch --external react --external next",
     "test": "vitest",
     "clean": "rm -rf dist node_modules",
